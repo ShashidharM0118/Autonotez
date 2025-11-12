@@ -1,6 +1,6 @@
 # AutoNotes Backend
 
-Full-stack meeting notes generator using Flask, MongoDB, and Google Gemini AI.
+Full-stack meeting notes generator using Flask, MongoDB, and **Groq AI** (FREE, fast, open-source models).
 
 ## 📁 Project Structure
 
@@ -10,7 +10,7 @@ server/
 ├── routes/
 │   └── notes_routes.py            # API endpoints for notes
 ├── services/
-│   ├── llm_service.py             # Gemini API integration
+│   ├── llm_service.py             # Groq API integration
 │   └── storage_service.py         # MongoDB CRUD operations
 ├── models/
 │   └── note_model.py              # Data models (Note, ActionItem)
@@ -29,7 +29,7 @@ server/
 
 - Python 3.8+
 - MongoDB instance (local or MongoDB Atlas)
-- Google Gemini API key ([Get one here](https://makersuite.google.com/app/apikey))
+- Groq API key ([Get FREE API key here](https://console.groq.com/keys)) - **NO PAYMENT REQUIRED!**
 
 ### Installation
 
@@ -62,7 +62,7 @@ server/
    
    Edit `.env` and add your credentials:
    ```env
-   GEMINI_API_KEY=your_actual_gemini_api_key
+   GROQ_API_KEY=gsk_your_actual_groq_api_key_here
    MONGO_URI=mongodb+srv://username:password@cluster.mongodb.net/autonotes
    ```
 
@@ -205,12 +205,30 @@ pytest tests/test_llm_service.py -v
 
 | Variable | Description | Example |
 |----------|-------------|---------|
-| `GEMINI_API_KEY` | Google Gemini API key | `AIzaSyD...` |
+| `GROQ_API_KEY` | Groq API key (FREE!) | `gsk_...` |
 | `MONGO_URI` | MongoDB connection string | `mongodb+srv://...` |
+
+### Groq Token Limits & Rate Limits
+
+**Groq Free Tier (No Payment Required!):**
+
+| Model | Context Window | Max Output | RPM | RPD | TPM |
+|-------|----------------|------------|-----|-----|-----|
+| **Llama 3.3 70B** (Default) | 128K tokens | 32K tokens | 30 | 14,400 | 100K |
+| Llama 3.1 70B | 128K tokens | 32K tokens | 30 | 14,400 | 100K |
+| Mixtral 8x7B | 32K tokens | 32K tokens | 30 | 14,400 | 100K |
+| Gemma 2 9B | 8K tokens | 8K tokens | 30 | 14,400 | 100K |
+
+*RPM = Requests Per Minute, RPD = Requests Per Day, TPM = Tokens Per Minute*
+
+**What this means for AutoNotes:**
+- ✅ **Input**: Can process meeting transcripts up to ~96,000 words (128K tokens)
+- ✅ **Output**: Can generate notes up to ~24,000 words (32K tokens)
+- ✅ **Rate**: 30 notes per minute, 14,400 per day - more than enough!
 
 ### MongoDB Setup
 
-**Option 1: MongoDB Atlas (Cloud)**
+**Option 1: MongoDB Atlas (Cloud - FREE Tier Available)**
 1. Create free account at [MongoDB Atlas](https://www.mongodb.com/cloud/atlas)
 2. Create cluster and get connection string
 3. Replace `<username>`, `<password>`, and `<cluster>` in URI
@@ -222,11 +240,21 @@ pytest tests/test_llm_service.py -v
 MONGO_URI=mongodb://localhost:27017/autonotes
 ```
 
-### Gemini API Setup
+### Groq API Setup (100% FREE)
 
-1. Go to [Google AI Studio](https://makersuite.google.com/app/apikey)
-2. Create new API key
-3. Copy key to `.env` file
+1. Go to [Groq Console](https://console.groq.com/keys)
+2. Sign up (no credit card required!)
+3. Click "Create API Key"
+4. Copy key to `.env` file (starts with `gsk_`)
+5. **That's it!** No payment method needed, no trials, truly free.
+
+### Why Groq?
+
+- ✅ **Truly FREE** - No credit card, no $5 minimum, no hidden costs
+- ⚡ **Super FAST** - Lightning-fast inference (up to 750 tokens/sec)
+- 🚀 **Open Source Models** - Llama 3.3, Mixtral, Gemma
+- 💪 **Generous Limits** - 128K context, 30 RPM, 14K requests/day
+- 🎯 **OpenAI-Compatible** - Easy to integrate
 
 ## 🐛 Troubleshooting
 
@@ -243,11 +271,12 @@ pip install -r requirements.txt
 - Check IP whitelist in MongoDB Atlas (add `0.0.0.0/0` for testing)
 - Ensure network allows outbound connections on port 27017
 
-### Gemini API Errors
+### Groq API Errors
 
-- Verify API key is valid and not expired
-- Check you haven't exceeded rate limits
-- Ensure you have enabled the Gemini API in Google Cloud Console
+- Verify API key is valid and starts with `gsk_`
+- Check you haven't exceeded rate limits (30 requests/minute)
+- Ensure you're connected to the internet
+- Visit [Groq Status](https://status.groq.com/) to check for outages
 
 ### CORS Issues
 
@@ -255,6 +284,15 @@ If frontend can't connect, verify CORS is enabled in `app.py`:
 ```python
 CORS(app, resources={r"/api/*": {"origins": "*"}})
 ```
+
+## 🔄 Switching LLM Providers
+
+This project has migrated through multiple LLM providers:
+- ~~Gemini~~ (Model not available)
+- ~~Claude~~ (Requires payment even on "free tier")
+- ✅ **Groq** (Currently using - truly FREE!)
+
+See `CLAUDE_MIGRATION.md` for historical migration notes.
 
 ## 📝 Code Style Guidelines
 
@@ -307,7 +345,8 @@ For production environments:
 
 - [Flask Documentation](https://flask.palletsprojects.com/)
 - [MongoDB Python Driver](https://pymongo.readthedocs.io/)
-- [Google Gemini API](https://ai.google.dev/docs)
+- [Groq API Documentation](https://console.groq.com/docs/quickstart)
+- [Groq Playground](https://console.groq.com/playground)
 - [pytest Documentation](https://docs.pytest.org/)
 
 ## 📄 License
@@ -316,4 +355,4 @@ MIT License - feel free to use this project for learning or production.
 
 ---
 
-**Built with ❤️ using Flask, MongoDB, and Google Gemini AI**
+**Built with ❤️ using Flask, MongoDB, and Groq AI (FREE & Fast!)**

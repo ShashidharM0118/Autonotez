@@ -73,10 +73,13 @@ def create_note():
         note_dict = note.to_dict()
         note_id = save_note(note_dict)
         
-        # Add note_id to response
-        note_dict["note_id"] = note_id
+        # Retrieve the saved note (this properly converts ObjectId to string)
+        saved_note = get_note_by_id(note_id)
         
-        return jsonify(note_dict), 200
+        if not saved_note:
+            raise StorageServiceError("Failed to retrieve saved note")
+        
+        return jsonify(saved_note), 200
         
     except ValidationError as e:
         return jsonify({
@@ -230,3 +233,100 @@ def health_check():
             "storage": storage_status
         }
     }), 200
+
+
+@notes_bp.route('/models', methods=['GET'])
+def list_models():
+    """
+    List all available Gemini models that support content generation.
+    
+    Response (200):
+        {
+            "total_models": number,
+            "current_model": "string - currently configured model",
+            "models": [
+                {
+                    "name": "string - full model path",
+                    "display_name": "string - human readable name",
+                    "description": "string - model description",
+                    "supported_methods": ["array of supported methods"],
+                    "input_token_limit": number,
+                    "output_token_limit": number
+                }
+            ]
+        }
+    
+    Error Responses:
+        500: Failed to fetch models
+    """
+    try:
+        from services.llm_service import list_available_models
+        
+        models_data = list_available_models()
+        return jsonify(models_data), 200
+        
+    except LLMServiceError as e:
+        return jsonify({
+            "error": "LLM service error",
+            "message": str(e)
+        }), 500
+    
+    except Exception as e:
+        print(f"Unexpected error in list_models: {str(e)}")
+        
+        return jsonify({
+            "error": "Internal server error",
+            "message": "Failed to list available models"
+        }), 500
+
+
+@notes_bp.route('/test', methods=['GET', 'POST'])
+def test_model():
+    """
+    Test the current Gemini model with a simple prompt.
+    
+    Query Parameters (GET):
+        prompt: Optional test prompt (default: "Hello, can you confirm you're working?")
+    
+    Request Body (POST):
+        {
+            "prompt": "string - test prompt"
+        }
+    
+    Response (200):
+        {
+            "status": "success",
+            "model": "string - model name",
+            "test_prompt": "string - prompt sent",
+            "response": "string - model response"
+        }
+    
+    Error Responses:
+        500: Model test failed
+    """
+    try:
+        from services.llm_service import test_model as test_llm_model
+        
+        # Get prompt from query param or request body
+        if request.method == 'POST':
+            data = request.get_json() or {}
+            prompt = data.get('prompt', 'Hello, can you confirm you\'re working?')
+        else:
+            prompt = request.args.get('prompt', 'Hello, can you confirm you\'re working?')
+        
+        test_result = test_llm_model(prompt)
+        return jsonify(test_result), 200
+        
+    except LLMServiceError as e:
+        return jsonify({
+            "error": "LLM service error",
+            "message": str(e)
+        }), 500
+    
+    except Exception as e:
+        print(f"Unexpected error in test_model: {str(e)}")
+        
+        return jsonify({
+            "error": "Internal server error",
+            "message": "Failed to test model"
+        }), 500

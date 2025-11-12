@@ -1,0 +1,3 @@
+{
+  "transcript": "Team standup meeting on Nov 12. John mentioned he will finish the user authentication module by Friday. Sarah reported that the database migration is complete and tested. We decided to move the launch date to December 1st to allow more time for testing. Mike raised concerns about the API rate limits. Action item: Sarah will research alternative API providers by next Monday. Decision made: We will use Groq instead of Claude for AI features."
+}
